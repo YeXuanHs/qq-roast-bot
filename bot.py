@@ -6,9 +6,9 @@ import aiohttp
 import datetime
 
 NAPCAT_HTTP = "http://127.0.0.1:3001"
-AI_API_URL = "https://your-api-url.com/v1/chat/completions"  # 替换为你的API地址
-AI_API_KEY = "your-api-key-here"  # 替换为你的API Key
-AI_MODEL = "your-model-name"  # 替换为你的模型名称
+AI_API_URL = "https://token-plan-cn.xiaomimimo.com/v1/chat/completions"
+AI_API_KEY = "tp-cvz6d2ilmm0bq6ndfzbchyj8ops3q0xva2jk8e1ogp75pfzv"
+AI_MODEL = "mimo-v2.5-pro"
 OWNER_QQ = ""
 TRIGGER_START = "开战吧各位！"
 TRIGGER_STOP = "停战吧！是我赢了"
@@ -195,6 +195,12 @@ async def handle_event(event):
     print(f"[DEBUG] {post_type}: {raw_msg[:50]}", flush=True)
     if OWNER_QQ and str(user_id) != str(OWNER_QQ):
         return
+    # 私聊时，message_sent的user_id是自己，需要获取对方的id
+    if msg_type == "private" and post_type == "message_sent":
+        # message_sent事件中有target_id字段表示接收者
+        target_id = event.get("target_id", 0)
+        if target_id:
+            user_id = target_id
     key = get_session_key(msg_type, group_id, user_id)
     # 停战优先检测
     if TRIGGER_STOP in raw_msg:
@@ -254,6 +260,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
